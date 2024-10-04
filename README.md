@@ -318,9 +318,139 @@ az deployment group create --resource-group <resource-group-name> --template-fil
 az deployment group create --resource-group myResourceGroup --template-file ./vnet.json --parameters @./vnet.parameters.json
 ```
 
-## Step 4: Using Comment Driven Development (CDD) ask Copilot to create an Storage Account
+## Step 4: As Copilot Chat a suggestion to modify the already created VNet Subnet
 
-> Create an Azure Storage Account using Terraform azurerm provider.
+> How can I update my already created Vnet with ARM Templates, to add another subnet on the same allowed vnet ip adresses range?.
+
+- Check the generated suggestion and update ".json" Vnet files.
+- vnet.json
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the virtual network."
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "The address prefix for the virtual network."
+      }
+    },
+    "subnet1Name": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the first subnet."
+      }
+    },
+    "subnet1AddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24",
+      "metadata": {
+        "description": "The address prefix for the first subnet."
+      }
+    },
+    "subnet2Name": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the second subnet."
+      }
+    },
+    "subnet2AddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24",
+      "metadata": {
+        "description": "The address prefix for the second subnet."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus",
+      "allowedValues": [
+        "eastus",
+        "eastus2",
+        "centralus",
+        "northcentralus",
+        "southcentralus",
+        "westus",
+        "westus2",
+        "westus3"
+      ],
+      "metadata": {
+        "description": "Location for the virtual network."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('vnetName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnet1Name')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnet1AddressPrefix')]"
+            }
+          },
+          {
+            "name": "[parameters('subnet2Name')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnet2AddressPrefix')]"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+- vnet.parameters.json
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "value": "myVnet"
+    },
+    "vnetAddressPrefix": {
+      "value": "10.0.0.0/16"
+    },
+    "subnet1Name": {
+      "value": "mySubnet1"
+    },
+    "subnet1AddressPrefix": {
+      "value": "10.0.0.0/24"
+    },
+    "subnet2Name": {
+      "value": "mySubnet2"
+    },
+    "subnet2AddressPrefix": {
+      "value": "10.0.1.0/24"
+    },
+    "location": {
+      "value": "eastus"
+    }
+  }
+}
+```
+- After we apply the changes on VNet ".json" files, we can run the following terminal az cli command to privision the new subnet.
+```terminal
+az deployment group create --resource-group myResourceGroup --template-file ./vnet.json --parameters @./vnet.parameters.json
+```
 
 ## Step 5: On the "Terminal" try to perform a Terraform Init, Plan and Apply.
 
