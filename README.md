@@ -9,7 +9,7 @@ This repo is created for GitHub Copilot Adoption Program, specifically for ARM T
 
 - Create ARM Templates project using GitHub Copilot from a Scratch.
 
-<img src="imagesre1.jpg" alt="ARM Templates Workspace" height="300">
+<img src="imagesarm1.jpg" alt="ARM Templates Workspace" height="300">
 
 ## Requirements
 
@@ -18,6 +18,7 @@ This repo is created for GitHub Copilot Adoption Program, specifically for ARM T
 - GitHub Copilot Extension
 - GitHub Copilot CLI Extension
 - Azure CLI
+- Azure Subscription
 
 ## Step 1: Create an ARM Templates Project
 
@@ -562,7 +563,7 @@ az deployment group create --resource-group myResourceGroup --template-file ./vn
 az deployment group create --resource-group myResourceGroup --template-file ./vnet.json --parameters @./vnet.parameters.json
 ```
 
-## Step 6: Finally ask Copilot Chat how to delete an entire resource group to avoid extra changes for the resources created with ARM Templates.
+## Step 6: Finally ask Copilot Chat how to delete an entire resource group to avoid extra charges for the resources created with ARM Templates.
 
 > How can I delete an Azure Resource group using the Azure CLI with my terminal?.
 
