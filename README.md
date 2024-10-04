@@ -214,7 +214,7 @@ az deployment group create --resource-group <resource-group-name> --template-fil
 
 - CHeck Copilot Chat suggestion and try to follow the steps.
 - Suggested ".json" files should be like the ones bellow:
-vnet.json
+- vnet.json
 ```json
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -289,7 +289,7 @@ vnet.json
   ]
 }
 ```
-vnet.parameters.json
+- vnet.parameters.json
 ```json
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
@@ -312,6 +312,10 @@ vnet.parameters.json
     }
   }
 }
+```
+- After we create the VNet ".json" files, we can apply the changes running the following terminal az cli command.
+```terminal
+az deployment group create --resource-group myResourceGroup --template-file ./vnet.json --parameters @./vnet.parameters.json
 ```
 
 ## Step 4: Using Comment Driven Development (CDD) ask Copilot to create an Storage Account
