@@ -7,7 +7,7 @@ This repo is created for GitHub Copilot Adoption Program, specifically for ARM T
 
 ## Objectives
 
-- Create ARM Templates project using GitHub Copilot from a Scratch.
+- Create ARM Templates project using GitHub Copilot from Scratch.
 
 <img src="imagearm1.jpg" alt="ARM Templates Workspace" height="300">
 
