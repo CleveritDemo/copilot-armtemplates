@@ -27,113 +27,177 @@ This repo is created for GitHub Copilot Adoption Program, specifically for ARM T
 
 ### Troubleshooting
 
-- The ".tf" files could be different because we are working with gen-ai, if you have problems use bellow ones.
+- The ARM Templates ".json" files could be different because we are working with gen-ai, if you have problems use bellow ones.
 
-- main.tf
-```terraform
-# We strongly recommend using the required_providers block to set the
-# Azure Provider source and version being used
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "=3.0.0"
+- storageAccount.json
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the storage account."
+      }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "The location where the storage account will be created."
+      }
+    },
+    "StorageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS",
+        "Premium_ZRS"
+      ],
+      "metadata": {
+        "description": "The type of the storage account."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('storageAccountType')]"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "supportsHttpsTrafficOnly": true
+      }
+    }
+  ]
+}
+```
+
+- storageAccount.parameters.json
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountName": {
+      "value": "myarmstorageaccount"
+    },
+    "storageAccountType": {
+      "value": "Standard_GRS"
+    },
+    "location": {
+      "value": "eastus"
     }
   }
 }
+```
 
-# Configure the Microsoft Azure Provider
-provider "azurerm" {
-  skip_provider_registration = true # This is only required when the User, Service Principal, or Identity running Terraform lacks the permissions to register Azure Resource Providers.
-  features {}
-}
-
-# Resource group
-resource "azurerm_resource_group" "dev" {
-  name     = var.resource_group_name
-  location = var.location
-}
-
-# App service plan
-resource "azurerm_app_service_plan" "dev" {
-  name                = var.app_service_plan_name
-  location            = azurerm_resource_group.dev.location
-  resource_group_name = azurerm_resource_group.dev.name
-  sku {
-    tier = "Standard"
-    size = "S1"
-  }
-}
-
-# App service
-resource "azurerm_app_service" "dev" {
-  name                = var.app_service_name
-  location            = azurerm_resource_group.dev.location
-  resource_group_name = azurerm_resource_group.dev.name
-  app_service_plan_id = azurerm_app_service_plan.dev.id
-
-  site_config {
-    dotnet_framework_version = "v5.0"
-    scm_type                 = "LocalGit"
-  }
-}
-
-# Create an Azure Storage Account
-resource "azurerm_storage_account" "dev" {
-  name                     = var.storage_account_name
-  resource_group_name      = azurerm_resource_group.dev.name
-  location                 = azurerm_resource_group.dev.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
+- vnet.json
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the virtual network."
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "The address prefix for the virtual network."
+      }
+    },
+    "subnet1Name": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the first subnet."
+      }
+    },
+    "subnet1AddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24",
+      "metadata": {
+        "description": "The address prefix for the first subnet."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus",
+      "allowedValues": [
+        "eastus",
+        "eastus2",
+        "centralus",
+        "northcentralus",
+        "southcentralus",
+        "westus",
+        "westus2",
+        "westus3"
+      ],
+      "metadata": {
+        "description": "Location for the virtual network."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('vnetName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnet1Name')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnet1AddressPrefix')]"
+            }
+          }
+        ]
+      }
+    }
+  ]
 }
 ```
 
-- variables.tf
-```terraform
-# Input variables for the DEV environment
-
-variable "resource_group_name" {
-  description = "The name of the resource group for the DEV environment"
-  type        = string
+- vnet.parameters.json
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "value": "myVnet"
+    },
+    "vnetAddressPrefix": {
+      "value": "10.0.0.0/16"
+    },
+    "subnet1Name": {
+      "value": "mySubnet1"
+    },
+    "subnet1AddressPrefix": {
+      "value": "10.0.0.0/24"
+    },
+    "location": {
+      "value": "eastus"
+    }
+  }
 }
-
-variable "app_service_name" {
-  description = "The name of the Azure App Service for the DEV environment"
-  type        = string
-}
-
-variable "app_service_plan_name" {
-  description = "The name of the Azure App Service Plan for the DEV environment"
-  type        = string
-}
-
-variable "storage_account_name" {
-  description = "The name of the Azure Storage Account for the DEV environment"
-  type        = string
-}
-
-variable "location" {
-  description = "The Azure region for the DEV environment"
-  type        = string
-}
-```
-
-- terraform.tfvars
-```terraform
-# Azure Resource Group Name
-resource_group_name = "dev-resource-group-traid"
-
-# Azure App Service Name
-app_service_name = "dev-app-service-traid"
-
-# Azure App Service Plan Name
-app_service_plan_name = "dev-app-service-plan-traid"
-
-# Azure Storage Account Name
-storage_account_name = "devstorageaccounttraid"
-
-# Azure Region
-location = "West US"
 ```
 
 ## Step 2: Ask Copilot Chat to generate the workspace doco
