@@ -320,7 +320,7 @@ az deployment group create --resource-group myResourceGroup --template-file ./vn
 
 ## Step 4: As Copilot Chat a suggestion to modify the already created VNet Subnet
 
-> How can I update my already created Vnet with ARM Templates, to add another subnet on the same allowed vnet ip adresses range?.
+> How can I update my already created Vnet with ARM Templates, to add another Subnet on the same allowed VNet ip adresses range?.
 
 - Check the generated suggestion and update ".json" Vnet files.
 - vnet.json
@@ -447,19 +447,127 @@ az deployment group create --resource-group myResourceGroup --template-file ./vn
   }
 }
 ```
-- After we apply the changes on VNet ".json" files, we can run the following terminal az cli command to privision the new subnet.
+- After we apply the changes on VNet ".json" files, we can run the following terminal az cli command to privision the new Subnet.
 ```terminal
 az deployment group create --resource-group myResourceGroup --template-file ./vnet.json --parameters @./vnet.parameters.json
 ```
 
-## Step 5: On the "Terminal" try to perform a Terraform Init, Plan and Apply.
+## Step 5: Ask Copilot Chat a suggestion to delete the latest VNet Subnet created using ARM Templates.
 
-> terraform init
+> How can I delete with ARM templates one of the subnets already created on my Azure vnet?
 
-## Step 6: On the "Terminal" ask Copilot to explain any of the Terraform commands and read the answer.
+- Check the generated suggestion and update ".json" Vnet files.
+- vnet.json
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the virtual network."
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "The address prefix for the virtual network."
+      }
+    },
+    "subnet1Name": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the first subnet."
+      }
+    },
+    "subnet1AddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24",
+      "metadata": {
+        "description": "The address prefix for the first subnet."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus",
+      "allowedValues": [
+        "eastus",
+        "eastus2",
+        "centralus",
+        "northcentralus",
+        "southcentralus",
+        "westus",
+        "westus2",
+        "westus3"
+      ],
+      "metadata": {
+        "description": "Location for the virtual network."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('vnetName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnet1Name')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnet1AddressPrefix')]"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+- vnet.parameters.json
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "value": "myVnet"
+    },
+    "vnetAddressPrefix": {
+      "value": "10.0.0.0/16"
+    },
+    "subnet1Name": {
+      "value": "mySubnet1"
+    },
+    "subnet1AddressPrefix": {
+      "value": "10.0.0.0/24"
+    },
+    "location": {
+      "value": "eastus"
+    }
+  }
+}
+```
 
-> gh copilot explain "Terraform init"
+- After we apply the changes on VNet ".json" files, we can run the following terminal az cli command to delete the Subnet.
+```terminal
+az deployment group create --resource-group myResourceGroup --template-file ./vnet.json --parameters @./vnet.parameters.json
+```
 
-## Step 7: Ask Copilot Chat to generate an Azure DevOps Pipeline to deploy my Terraform scripts.
+## Step 6: Finally ask Copilot Chat how to delete an entire resource group to avoid extra changes for the resources created with ARM Templates.
 
-> @workspace Please generate an Azure DevOps Pipeline ".yaml" in order to execute and deploy infrastructure with the files used here as reference.
+> How can I delete an Azure Resource group using the Azure CLI with my terminal?.
+
+- Check GitHub Copilot suggestion and Delete the resource group. You can use the bellow az cli terminal command.
+
+```terminal
+az group delete --name myResourceGroup --yes --no-wait
+```
