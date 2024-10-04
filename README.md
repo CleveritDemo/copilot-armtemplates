@@ -205,7 +205,9 @@ This repo is created for GitHub Copilot Adoption Program, specifically for ARM T
 > how can I update my already created storage account type to "Standard_GRS" using arm templates?.
 
 - Check the generated ".json", apply the suggested changes and update the storage account.
-
+```terminal
+az deployment group create --resource-group <resource-group-name> --template-file ./storageAccount.json --parameters @./storageAccount.parameters.json
+```
 ## Step 3: Ask Copilot Chat how can I start my deployment to Azure
 
 > How can I initialize the Terraform configuration for my Azure App Service deployment?
