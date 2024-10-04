@@ -204,15 +204,115 @@ This repo is created for GitHub Copilot Adoption Program, specifically for ARM T
 
 > how can I update my already created storage account type to "Standard_GRS" using arm templates?.
 
-- Check the generated ".json", apply the suggested changes and update the storage account.
+- Check the generated ".json", apply the suggested changes and update the storage account using bellow terminal az cli command.
 ```terminal
 az deployment group create --resource-group <resource-group-name> --template-file ./storageAccount.json --parameters @./storageAccount.parameters.json
 ```
-## Step 3: Ask Copilot Chat how can I start my deployment to Azure
+## Step 3: Ask Copilot Chat to suggest a ".json" arm template to create an Azure Vnet and subnet.
 
-> How can I initialize the Terraform configuration for my Azure App Service deployment?
+> Now I need to create an Azure VNet with his default subnet using an ARM Template for this purpose, can you please suggest me a ".json" to accomplish this?.
 
 - CHeck Copilot Chat suggestion and try to follow the steps.
+- Suggested ".json" files should be like the ones bellow:
+vnet.json
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the virtual network."
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "The address prefix for the virtual network."
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the subnet."
+      }
+    },
+    "subnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24",
+      "metadata": {
+        "description": "The address prefix for the subnet."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus",
+      "allowedValues": [
+        "eastus",
+        "eastus2",
+        "centralus",
+        "northcentralus",
+        "southcentralus",
+        "westus",
+        "westus2",
+        "westus3"
+      ],
+      "metadata": {
+        "description": "Location for the virtual network."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('vnetName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetAddressPrefix')]"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+vnet.parameters.json
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "value": "myVnet"
+    },
+    "vnetAddressPrefix": {
+      "value": "10.0.0.0/16"
+    },
+    "subnetName": {
+      "value": "mySubnet"
+    },
+    "subnetAddressPrefix": {
+      "value": "10.0.0.0/24"
+    },
+    "location": {
+      "value": "eastus"
+    }
+  }
+}
+```
 
 ## Step 4: Using Comment Driven Development (CDD) ask Copilot to create an Storage Account
 
