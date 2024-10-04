@@ -200,11 +200,11 @@ This repo is created for GitHub Copilot Adoption Program, specifically for ARM T
 }
 ```
 
-## Step 2: Ask Copilot Chat to generate the workspace doco
+## Step 2: Ask Copilot Chat to suggest how a change to storage account could be achieved
 
-> @workspace create a README.md Markdown file that document all functions, files and folders.
+> how can I update my already created storage account type to "Standard_GRS" using arm templates?.
 
-- Check the generated Markdown File and create a new file with the suggestion
+- Check the generated ".json", apply the suggested changes and update the storage account.
 
 ## Step 3: Ask Copilot Chat how can I start my deployment to Azure
 
