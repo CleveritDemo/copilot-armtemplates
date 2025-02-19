@@ -1,0 +1,147 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmName": {
+      "type": "string",
+      "defaultValue": "vmCopilot",
+      "metadata": {
+        "description": "Name of the virtual machine."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus",
+      "metadata": {
+        "description": "Location of the virtual machine."
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "VNET_COPILOT",
+      "metadata": {
+        "description": "Name of the Virtual Network."
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "snet_servidores",
+      "metadata": {
+        "description": "Name of the VNet subnet where the VM will connect."
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "adminuser",
+      "metadata": {
+        "description": "Administrator username for the VM."
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "defaultValue": "Password1234$",
+      "metadata": {
+        "description": "Administrator password."
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_B2s",
+      "metadata": {
+        "description": "Virtual machine size."
+      }
+    },
+    "osImagePublisher": {
+      "type": "string",
+      "defaultValue": "MicrosoftWindowsServer",
+      "metadata": {
+        "description": "OS image publisher."
+      }
+    },
+    "osImageOffer": {
+      "type": "string",
+      "defaultValue": "WindowsServer",
+      "metadata": {
+        "description": "OS image offer."
+      }
+    },
+    "osImageSku": {
+      "type": "string",
+      "defaultValue": "2022-Datacenter",
+      "metadata": {
+        "description": "OS image SKU."
+      }
+    },
+    "osImageVersion": {
+      "type": "string",
+      "defaultValue": "latest",
+      "metadata": {
+        "description": "OS image version."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-06-01",
+      "name": "[concat(parameters('vmName'), 'NIC')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('vmName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'), 'NIC'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[parameters('osImagePublisher')]",
+            "offer": "[parameters('osImageOffer')]",
+            "sku": "[parameters('osImageSku')]",
+            "version": "[parameters('osImageVersion')]"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'), 'NIC'))]",
+              "properties": {
+                "primary": true
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

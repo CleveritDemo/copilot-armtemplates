@@ -1,0 +1,63 @@
+trigger:
+  branches:
+    include:
+      - main
+pool:
+  vmImage: 'ubuntu-latest'
+variables:
+  # Defined in the pipeline:
+  azureSubscription: '$(azureServiceConnection)'
+  location: 'eastus'
+  resourceGroup: 'RG_COPILOT_ARM_DEMO'
+
+stages:
+- stage: Deploy
+  displayName: 'Deploy ARM Templates in Order'
+  jobs:
+  - job: DeployTemplates
+    displayName: 'Deploy ARM Templates'
+    steps:
+    - task: AzureCLI@2
+      displayName: 'Deploy Resource Group'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # Deploying at the subscription level to create the resource group
+          az deployment sub create \
+            --location $(location) \
+            --template-file my-azure-arm-template/templates/resourceGroup.json \
+            --parameters location=$(location)
+    - task: AzureCLI@2
+      displayName: 'Deploy Storage Account'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az deployment group create \
+            --resource-group $(resourceGroup) \
+            --template-file my-azure-arm-template/templates/storageAccount.json \
+            --parameters @my-azure-arm-template/parameters/storageAccount.parameters.json
+    - task: AzureCLI@2
+      displayName: 'Deploy Network Resources'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az deployment group create \
+            --resource-group $(resourceGroup) \
+            --template-file my-azure-arm-template/templates/networking.json
+    - task: AzureCLI@2
+      displayName: 'Deploy Virtual Machine'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az deployment group create \
+            --resource-group $(resourceGroup) \
+            --template-file my-azure-arm-template/templates/vm.json \
+            --parameters @my-azure-arm-template/parameters/vm.parameters.json
