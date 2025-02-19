@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmName": {
+      "value": "vmCopilotDemo"
+    },
+    "location": {
+      "value": "eastus"
+    },
+    "virtualNetworkName": {
+      "value": "VNET_COPILOT"
+    },
+    "subnetName": {
+      "value": "snet_servidores"
+    },
+    "adminUsername": {
+      "value": "adminuser"
+    },
+    "adminPassword": {
+      "value": "Password1234$"
+    },
+    "vmSize": {
+      "value": "Standard_B2s"
+    },
+    "osImagePublisher": {
+      "value": "MicrosoftWindowsServer"
+    },
+    "osImageOffer": {
+      "value": "WindowsServer"
+    },
+    "osImageSku": {
+      "value": "2022-Datacenter"
+    },
+    "osImageVersion": {
+      "value": "latest"
+    }
+  }
+}
