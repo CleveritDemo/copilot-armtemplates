@@ -1,574 +1,175 @@
-# COPILOT with ARM Templates for Azure Provisioning
-This repo is created for GitHub Copilot Adoption Program, specifically for ARM Templates Hands On!
+# Azure ARM Templates. Infrastructure as Code with GitHub Copilot
 
-# First Activity: Create your Workspace and Project with VS Code and ARM Templates
+In this repository we will cover the creation of a small bastion infrastructure that will allow us to access a virtual machine without exposing its public IP address.
 
-- VS Code and ARM Templates
+We will use various GitHub Copilot features such as:
+- GitHub Copilot Extensions.
+- GitHub Copilot Edits.
+- GitHub Copilot Instructions.
+
+The end result will be the ability to access our virtual machine without needing to know its IP and, at the same time, obtain a basic Azure DevOps pipeline to automatically deploy all the resources.
+
+Finally, we will finish by deleting all the deployed resources.
+
+# 🔧 Let's Get Started
 
 ## Objectives
 
-- Create ARM Templates project using GitHub Copilot from Scratch.
+- Create a bastion infrastructure using ARM Templates and GitHub Copilot
 
 <img src="imagearm1.jpg" alt="ARM Templates Workspace" height="300">
 
 ## Requirements
 
-- VS Code
-- GitHub Copilot license
+- Visual Studio Code 
+- GitHub Copilot License
 - GitHub Copilot Extension
-- GitHub Copilot CLI Extension
 - Azure CLI
-- Azure Subscription
+- Active Azure Cloud Subscription
 
-## Step 1: Create an ARM Templates Project
+## 0. Creating the Copilot Instructions File
 
-> @workspace /new I need to create an Azure Resource Manager templates workspace to create an azure storage account inside an azure resource group, later I'll add more azure resource manager templates to continue provisioning resources.
+Create a new folder named `.github` at the repository root and create a file called `copilot-instructions.md` inside that folder. Add the following content:
 
-- Click on Create Workspace.
+```
+You are a code assistant proficient in Azure Cloud.
+You have advanced knowledge in Azure Resource Manager (ARM) Templates and Terraform.
+You also have extensive experience with the Azure CLI terminal and various scripting languages such as PowerShell, Bash, and Python.
 
-### Troubleshooting
+Your main goal is to provide high-quality code assistance to the DevOps engineer or Developer using the GitHub Copilot chat.
 
-- The ARM Templates ".json" files could be different because we are working with gen-ai, if you have problems use bellow ones.
-
-- storageAccount.json
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "storageAccountName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the storage account."
-      }
-    },
-    "location": {
-      "type": "string",
-      "metadata": {
-        "description": "The location where the storage account will be created."
-      }
-    },
-    "StorageAccountType": {
-      "type": "string",
-      "defaultValue": "Standard_LRS",
-      "allowedValues": [
-        "Standard_LRS",
-        "Standard_GRS",
-        "Standard_RAGRS",
-        "Premium_LRS",
-        "Premium_ZRS"
-      ],
-      "metadata": {
-        "description": "The type of the storage account."
-      }
-    }
-  },
-  "resources": [
-    {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2019-06-01",
-      "name": "[parameters('storageAccountName')]",
-      "location": "[parameters('location')]",
-      "sku": {
-        "name": "[parameters('storageAccountType')]"
-      },
-      "kind": "StorageV2",
-      "properties": {
-        "supportsHttpsTrafficOnly": true
-      }
-    }
-  ]
-}
+If you have any doubts about the user's request, you should ask the user to clarify the specified information. This point must always be fulfilled.
 ```
 
-- storageAccount.parameters.json
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "storageAccountName": {
-      "value": "myarmstorageaccount"
-    },
-    "storageAccountType": {
-      "value": "Standard_GRS"
-    },
-    "location": {
-      "value": "eastus"
-    }
-  }
-}
+This configures the assistant’s behavior and instructs the AI model to provide more efficient code assistance for our tasks.
+
+Once adjusted, save the file.
+
+## 1. Creating the ARM Templates Project and Storage Account
+
+We use the **@workspace** extension to create a new project structure.
+
+Prompt to use:
+
+`@workspace /new Create a new workspace where you must generate a storage account resource in Azure using ARM Templates. The resource should be named "copilotstgdemo" and be located in the "us-east" region of Azure. Organize the workspace with two folders "templates" and "parameters" to store resource templates and their parameter files respectively. Note that this template will be modified later.`
+
+- Click on "Create Workspace".
+- Click on "Set as Root Folder" (or "Main Folder") so that the structure is generated in the repository root.
+
+At this point, Copilot may provide two files: `storageAccount.json` and `storageAccount.parameters.json` containing the resource and parameters.
+
+## 2. Creating the Resource Group and Deploying Initial Resources
+
+Prompt to use:
+
+`@workspace Using Azure ARM Templates, create a resource of type "resource group" in Azure. The resource should be named "RG_COPILOT_ARM_DEMO" and be located in the "us-east" region of Azure.`
+
+Copilot will return template files named `resourceGroup.json` and `resourceGroup.parameters.json`.
+
+Both files must be created inside the `templates` and `parameters` folders or inserted as new files via GitHub Copilot Chat.
+
+Then ask:
+
+`@workspace How can I deploy these resources to Azure #file:resourceGroup.json #file:resourceGroup.parameters.json #file:storageAccount.json #file:storageAccount.parameters.json`
+
+Copilot will suggest the appropriate Azure CLI commands.
+
+```sh
+az deployment sub create \
+  --location eastus \
+  --template-file my-azure-arm-template/templates/resourceGroup.json \
+  --parameters my-azure-arm-template/parameters/resourceGroup.parameters.json
 ```
 
-- vnet.json
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "vnetName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the virtual network."
-      }
-    },
-    "vnetAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.0.0/16",
-      "metadata": {
-        "description": "The address prefix for the virtual network."
-      }
-    },
-    "subnet1Name": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the first subnet."
-      }
-    },
-    "subnet1AddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.0.0/24",
-      "metadata": {
-        "description": "The address prefix for the first subnet."
-      }
-    },
-    "location": {
-      "type": "string",
-      "defaultValue": "eastus",
-      "allowedValues": [
-        "eastus",
-        "eastus2",
-        "centralus",
-        "northcentralus",
-        "southcentralus",
-        "westus",
-        "westus2",
-        "westus3"
-      ],
-      "metadata": {
-        "description": "Location for the virtual network."
-      }
-    }
-  },
-  "resources": [
-    {
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2020-06-01",
-      "name": "[parameters('vnetName')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[parameters('vnetAddressPrefix')]"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "[parameters('subnet1Name')]",
-            "properties": {
-              "addressPrefix": "[parameters('subnet1AddressPrefix')]"
-            }
-          }
-        ]
-      }
-    }
-  ]
-}
+```sh
+az deployment group create \
+  --resource-group RG_COPILOT_ARM_DEMO \
+  --template-file my-azure-arm-template/templates/storageAccount.json \
+  --parameters @my-azure-arm-template/parameters/storageAccount.parameters.json
 ```
 
-- vnet.parameters.json
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "vnetName": {
-      "value": "myVnet"
-    },
-    "vnetAddressPrefix": {
-      "value": "10.0.0.0/16"
-    },
-    "subnet1Name": {
-      "value": "mySubnet1"
-    },
-    "subnet1AddressPrefix": {
-      "value": "10.0.0.0/24"
-    },
-    "location": {
-      "value": "eastus"
-    }
-  }
-}
+> IMPORTANT: Deploy the Resource Group first. Deploying the storage account without an existing resource group will result in an error.
+
+## 3. Creating the Networking Resources: Virtual Network, Subnets, and Bastion Host
+In this step, we will create the virtual network and the necessary subnets to host servers and the bastion host that will allow us to access those servers. To do this, execute the following prompt:
+
+_Prompt to execute:_
+
+`@workspace Using Azure ARM Templates, create a series of templates to create an "Azure Virtual Network" in the eastus region called "VNET_COPILOT". The network space for this VNET should be 10.100.0.0/16 and it should contain the following subnets: A subnet for virtual machines called "snet_servidores" (this subnet should have a /24 space). The goal is to be able to access the virtual machines in the future located in the servers subnet from the bastion service. A subnet for azure bastion, you should configure a bastion service that allows at least one simultaneous connection to the servers located in the snet_servidores network. Create the necessary ARM templates to meet the requirement.`
+
+At this point, Copilot will most likely suggest a structure with two files `networking.json` and `networking.parameters.json` which will contain resources and parameters to use respectively.
+
+If we are not suggested how to execute these files, we can use the following prompt to obtain the execution command in the GitHub CLI:
+
+_Prompt to execute:_
+
+`@workspace How can I deploy these resources to azure #file:networking.json #file:networking.parameters.json`
+
+This will suggest a command similar to the following:
+
+```sh
+az deployment group create \
+  --resource-group RG_COPILOT_ARM_DEMO \
+  --template-file my-azure-arm-template/templates/networking.json \
+  --parameters @my-azure-arm-template/parameters/networking.parameters.json
 ```
 
-## Step 2: Ask Copilot Chat to suggest how a change to storage account could be achieved
+At this point, we can wait a few minutes and then open our Azure Cloud subscription to verify that the resources are deployed.\
 
-> how can I update my already created storage account type to "Standard_GRS" using arm templates?.
+### Troubleshooting: scaleUnit Parameter Error
 
-- Check the generated ".json", apply the suggested changes and update the storage account using bellow terminal az cli command.
-```terminal
-az deployment group create --resource-group <resource-group-name> --template-file ./storageAccount.json --parameters @./storageAccount.parameters.json
-```
-## Step 3: Ask Copilot Chat to suggest a ".json" arm template to create an Azure Vnet and subnet.
+If you encounter an error stating that a "scaleUnit" entry is missing in the Bastion resource, use the prompt:
 
-> Now I need to create an Azure VNet with his default subnet using an ARM Template for this purpose, can you please suggest me a ".json" to accomplish this?.
+`@workspace /fix #terminalSelection I need your help to resolve the following error since it indicates that an entry for "scaleUnit" is missing in the Bastion object #file:networking.json . Provide a direct solution that allows deployment of all resources.`
 
-- CHeck Copilot Chat suggestion and try to follow the steps.
-- Suggested ".json" files should be like the ones bellow:
-- vnet.json
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "vnetName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the virtual network."
-      }
-    },
-    "vnetAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.0.0/16",
-      "metadata": {
-        "description": "The address prefix for the virtual network."
-      }
-    },
-    "subnetName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the subnet."
-      }
-    },
-    "subnetAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.0.0/24",
-      "metadata": {
-        "description": "The address prefix for the subnet."
-      }
-    },
-    "location": {
-      "type": "string",
-      "defaultValue": "eastus",
-      "allowedValues": [
-        "eastus",
-        "eastus2",
-        "centralus",
-        "northcentralus",
-        "southcentralus",
-        "westus",
-        "westus2",
-        "westus3"
-      ],
-      "metadata": {
-        "description": "Location for the virtual network."
-      }
-    }
-  },
-  "resources": [
-    {
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2020-06-01",
-      "name": "[parameters('vnetName')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[parameters('vnetAddressPrefix')]"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "[parameters('subnetName')]",
-            "properties": {
-              "addressPrefix": "[parameters('subnetAddressPrefix')]"
-            }
-          }
-        ]
-      }
-    }
-  ]
-}
-```
-- vnet.parameters.json
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "vnetName": {
-      "value": "myVnet"
-    },
-    "vnetAddressPrefix": {
-      "value": "10.0.0.0/16"
-    },
-    "subnetName": {
-      "value": "mySubnet"
-    },
-    "subnetAddressPrefix": {
-      "value": "10.0.0.0/24"
-    },
-    "location": {
-      "value": "eastus"
-    }
-  }
-}
-```
-- After we create the VNet ".json" files, we can apply the changes running the following terminal az cli command.
-```terminal
-az deployment group create --resource-group myResourceGroup --template-file ./vnet.json --parameters @./vnet.parameters.json
+This should instruct you to remove or adjust the "scaleUnit" parameter.
+
+## 4. Creating the Virtual Machine
+
+In this step, we will create a virtual machine using the Standard_B2s size from Microsoft's general-purpose machines and specify the basic configurations to deploy it.
+
+_Prompt to use:_
+
+`@workspace Using Azure ARM templates, generate a template to create a virtual machine in the eastus region of Azure. This virtual machine will be of size Standard_B2s, which has 2 vCores and 4GB of RAM. The operating system image to use is Windows Server, and you should use the Datacenter 2022 version of Windows Server. Additionally, the virtual machine's hard disk should be of the standard SSD type, and the machine should be associated with the subnet: snet_servidores defined in the template of #file:networking.json. If I have omitted any other required parameters to deploy this virtual machine, please let me know so I can provide the information.`
+
+At this point, the templates `vm.json` and `vm.parameters.json` will be generated, containing the resources and parameters respectively.
+
+> **Suggestion: GitHub Copilot Edits 💡**  
+> GitHub Copilot might ask at this point if you want to replace the default username and password values. You can either manually replace the default values in the `vm.parameters.json` file or use **GitHub Copilot Edits** to instruct Copilot to make the replacement for you.
+
+Command to execute the deployment:
+```sh
+az deployment group create --resource-group RG_COPILOT_ARM_DEMO --template-file "my-azure-arm-template/templates/vm.json" --parameters "my-azure-arm-template/parameters/vm.parameters.json"
 ```
 
-## Step 4: As Copilot Chat a suggestion to modify the already created VNet Subnet
+## 5. Building an Azure DevOps CI/CD Pipeline
 
-> How can I update my already created Vnet with ARM Templates, to add another Subnet on the same allowed VNet ip adresses range?.
+In this step, we will use **GitHub Copilot Edits** to build an Azure DevOps pipeline that will handle the deployment of all previously generated templates.
 
-- Check the generated suggestion and update ".json" Vnet files.
-- vnet.json
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "vnetName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the virtual network."
-      }
-    },
-    "vnetAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.0.0/16",
-      "metadata": {
-        "description": "The address prefix for the virtual network."
-      }
-    },
-    "subnet1Name": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the first subnet."
-      }
-    },
-    "subnet1AddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.0.0/24",
-      "metadata": {
-        "description": "The address prefix for the first subnet."
-      }
-    },
-    "subnet2Name": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the second subnet."
-      }
-    },
-    "subnet2AddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.1.0/24",
-      "metadata": {
-        "description": "The address prefix for the second subnet."
-      }
-    },
-    "location": {
-      "type": "string",
-      "defaultValue": "eastus",
-      "allowedValues": [
-        "eastus",
-        "eastus2",
-        "centralus",
-        "northcentralus",
-        "southcentralus",
-        "westus",
-        "westus2",
-        "westus3"
-      ],
-      "metadata": {
-        "description": "Location for the virtual network."
-      }
-    }
-  },
-  "resources": [
-    {
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2020-06-01",
-      "name": "[parameters('vnetName')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[parameters('vnetAddressPrefix')]"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "[parameters('subnet1Name')]",
-            "properties": {
-              "addressPrefix": "[parameters('subnet1AddressPrefix')]"
-            }
-          },
-          {
-            "name": "[parameters('subnet2Name')]",
-            "properties": {
-              "addressPrefix": "[parameters('subnet2AddressPrefix')]"
-            }
-          }
-        ]
-      }
-    }
-  ]
-}
-```
-- vnet.parameters.json
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "vnetName": {
-      "value": "myVnet"
-    },
-    "vnetAddressPrefix": {
-      "value": "10.0.0.0/16"
-    },
-    "subnet1Name": {
-      "value": "mySubnet1"
-    },
-    "subnet1AddressPrefix": {
-      "value": "10.0.0.0/24"
-    },
-    "subnet2Name": {
-      "value": "mySubnet2"
-    },
-    "subnet2AddressPrefix": {
-      "value": "10.0.1.0/24"
-    },
-    "location": {
-      "value": "eastus"
-    }
-  }
-}
-```
-- After we apply the changes on VNet ".json" files, we can run the following terminal az cli command to privision the new Subnet.
-```terminal
-az deployment group create --resource-group myResourceGroup --template-file ./vnet.json --parameters @./vnet.parameters.json
-```
+- First, create a new file named `azure-pipelines.yml` at the root of the repository.
+- Then, select the **Copilot Edits** option in the GitHub Copilot chat.
+- Once in the chat in "Edits" mode, use the following prompt to start the modification.
+- _Prompt to use:_
+  ```
+  I need you to build an Azure DevOps pipeline in YAML format that sequentially deploys all the Azure ARM templates within the workspace of this project. The deployment order should be as follows:
 
-## Step 5: Ask Copilot Chat a suggestion to delete the latest VNet Subnet created using ARM Templates.
+  Deploy the resource group #file:resourceGroup.json
+  Deploy the storage account #file:storageAccount.json #file:storageAccount.parameters.json
+  Deploy the networking resources #file:networking.json
+  Deploy the virtual machine #file:vm.json #file:vm.parameters.json
+  The pipeline should retrieve credentials from variables defined at the pipeline level within Azure DevOps and should run on a Linux instance.
+  ```
+The result of this execution will include all the required template files in the "working set" of Copilot Edits and will develop the pipeline code for us simultaneously within the `azure-pipelines.yml` file.
 
-> How can I delete with ARM templates one of the subnets already created on my Azure vnet?
+Once the file creation is complete, it will be available for subsequent execution in an Azure Pipelines account.
 
-- Check the generated suggestion and update ".json" Vnet files.
-- vnet.json
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "vnetName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the virtual network."
-      }
-    },
-    "vnetAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.0.0/16",
-      "metadata": {
-        "description": "The address prefix for the virtual network."
-      }
-    },
-    "subnet1Name": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the first subnet."
-      }
-    },
-    "subnet1AddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.0.0/24",
-      "metadata": {
-        "description": "The address prefix for the first subnet."
-      }
-    },
-    "location": {
-      "type": "string",
-      "defaultValue": "eastus",
-      "allowedValues": [
-        "eastus",
-        "eastus2",
-        "centralus",
-        "northcentralus",
-        "southcentralus",
-        "westus",
-        "westus2",
-        "westus3"
-      ],
-      "metadata": {
-        "description": "Location for the virtual network."
-      }
-    }
-  },
-  "resources": [
-    {
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2020-06-01",
-      "name": "[parameters('vnetName')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[parameters('vnetAddressPrefix')]"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "[parameters('subnet1Name')]",
-            "properties": {
-              "addressPrefix": "[parameters('subnet1AddressPrefix')]"
-            }
-          }
-        ]
-      }
-    }
-  ]
-}
-```
-- vnet.parameters.json
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "vnetName": {
-      "value": "myVnet"
-    },
-    "vnetAddressPrefix": {
-      "value": "10.0.0.0/16"
-    },
-    "subnet1Name": {
-      "value": "mySubnet1"
-    },
-    "subnet1AddressPrefix": {
-      "value": "10.0.0.0/24"
-    },
-    "location": {
-      "value": "eastus"
-    }
-  }
-}
-```
+## 6. Deleting All Created Resources via Azure CLI
 
-- After we apply the changes on VNet ".json" files, we can run the following terminal az cli command to delete the Subnet.
-```terminal
-az deployment group create --resource-group myResourceGroup --template-file ./vnet.json --parameters @./vnet.parameters.json
-```
+In this final step, we ask GitHub Copilot how we can delete all the resources created during the exercise.
 
-## Step 6: Finally ask Copilot Chat how to delete an entire resource group to avoid extra charges for the resources created with ARM Templates.
+`How can I delete all the resources created in my resource group RG_COPILOT_ARM_DEMO?`
 
-> How can I delete an Azure Resource group using the Azure CLI with my terminal?.
-
-- Check GitHub Copilot suggestion and Delete the resource group. You can use the bellow az cli terminal command.
-
-```terminal
-az group delete --name myResourceGroup --yes --no-wait
+- Review the suggestion from GitHub Copilot and delete the resource group with the following Azure CLI command:
+```sh
+az group delete --name RG_COPILOT_ARM_DEMO --yes --no-wait
 ```
