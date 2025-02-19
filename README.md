@@ -17,7 +17,7 @@ Finally, we will finish by deleting all the deployed resources.
 
 - Create a bastion infrastructure using ARM Templates and GitHub Copilot
 
-<img src="imagearm1.jpg" alt="ARM Templates Workspace" height="300">
+![ARM Templates Workspace](imagearm1.png)
 
 ## Requirements
 

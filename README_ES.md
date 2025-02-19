@@ -18,7 +18,7 @@ Por ultimo cerraremos el practico eliminando todos los recursos desplegados.
 
 - Crear una insfraestructura bastion utilizando ARM Templates y GitHub Copilot
 
-<img src="imagearm1.jpg" alt="ARM Templates Workspace" height="300">
+![ARM Templates Workspace](imagearm1.png)
 
 ## Requisitos
 
