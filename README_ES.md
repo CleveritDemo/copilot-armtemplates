@@ -99,17 +99,17 @@ az deployment group create \
 
 En este paso crearemos la red virtual y las subredes virtuales necesarias para alojar servidores y el host de bastion que nos permitira acceder a dichos servidores. Para ello es necesario ejecutar el siguiente prompt:
 
-_Prompt a ejecutar:_
+_Prompt a ejecutar: (En Modo Agente)_
 
-`@workspace Utilizando Azure ARM Templates, crea una serie de plantillas que permitan crear una "Virtual Network de Azure" en la region eastus llamada "VNET_COPILOT" el espacio de red para esta VNET debe ser 10.100.0.0/16 y debe contener las siguientes subnets: Una subnet para maquinas virtuales llamada "snet_servidores" (esta subnet debe tener un espacio de /24). El objetivo es que yo pueda acceder a las maquinas virtuales en un futuro ubicados en la subnet de servidores desde el servicio bastion. Una subnet para azure bastion, debes configurar un servicio bastion que permita al menos una unica conexion simultanea a los servidores ubicados en la red de snet_servidores. Crea las plantillas ARM necesarias para satisfacer el requerimiento.`
+`Utilizando Azure ARM Templates, crea una serie de plantillas que permitan crear una "Virtual Network de Azure" en la region eastus llamada "VNET_COPILOT" el espacio de red para esta VNET debe ser 10.100.0.0/16 y debe contener las siguientes subnets: Una subnet para maquinas virtuales llamada "snet_servidores" (esta subnet debe tener un espacio de /24). El objetivo es que yo pueda acceder a las maquinas virtuales en un futuro ubicados en la subnet de servidores desde el servicio bastion. Una subnet para azure bastion, debes configurar un servicio bastion que permita al menos una unica conexion simultanea a los servidores ubicados en la red de snet_servidores. Crea las plantillas ARM necesarias para satisfacer el requerimiento.`
 
 En este punto copilot muy probablemente sugerira una estructura con dos archivos `networking.json` y `networking.parameters.json` los cuales contendran recursos y parametros a usar respectivamente.
 
 Si no se nos sugiere como podemos ejecutar estos archivos podemos utilizar el siguiente prompt y obtener el comando de ejecucion en el GitHub CLI
 
-_Prompt a ejecutar:_
+_Prompt a ejecutar: (En Modo Agente)_
 
-`@workspace Como puedo desplegar estos recursos a azure #file:networking.json #file:networking.parameters.json`
+`Como puedo desplegar estos recursos a azure #file:networking.json #file:networking.parameters.json`
 
 Esto sugerira un comando similar al siguiente:
 
