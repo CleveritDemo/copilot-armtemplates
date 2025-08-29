@@ -93,17 +93,17 @@ az deployment group create \
 ## 3. Creating the Networking Resources: Virtual Network, Subnets, and Bastion Host
 In this step, we will create the virtual network and the necessary subnets to host servers and the bastion host that will allow us to access those servers. To do this, execute the following prompt:
 
-_Prompt to execute:_
+_Prompt to execute: (On Agent Mode)_
 
-`@workspace Using Azure ARM Templates, create a series of templates to create an "Azure Virtual Network" in the eastus region called "VNET_COPILOT". The network space for this VNET should be 10.100.0.0/16 and it should contain the following subnets: A subnet for virtual machines called "snet_servidores" (this subnet should have a /24 space). The goal is to be able to access the virtual machines in the future located in the servers subnet from the bastion service. A subnet for azure bastion, you should configure a bastion service that allows at least one simultaneous connection to the servers located in the snet_servidores network. Create the necessary ARM templates to meet the requirement.`
+`Using Azure ARM Templates, create a series of templates to create an "Azure Virtual Network" in the eastus region called "VNET_COPILOT". The network space for this VNET should be 10.100.0.0/16 and it should contain the following subnets: A subnet for virtual machines called "snet_servidores" (this subnet should have a /24 space). The goal is to be able to access the virtual machines in the future located in the servers subnet from the bastion service. A subnet for azure bastion, you should configure a bastion service that allows at least one simultaneous connection to the servers located in the snet_servidores network. Create the necessary ARM templates to meet the requirement.`
 
 At this point, Copilot will most likely suggest a structure with two files `networking.json` and `networking.parameters.json` which will contain resources and parameters to use respectively.
 
 If we are not suggested how to execute these files, we can use the following prompt to obtain the execution command in the GitHub CLI:
 
-_Prompt to execute:_
+_Prompt to execute: (On Agent Mode)_
 
-`@workspace How can I deploy these resources to azure #file:networking.json #file:networking.parameters.json`
+`How can I deploy these resources to azure #file:networking.json #file:networking.parameters.json`
 
 This will suggest a command similar to the following:
 
